@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/base64"
 	"encoding/json"
 	"io/ioutil"
 	"log"
@@ -18,8 +19,9 @@ type TokenResponse struct {
 }
 
 // GetToken requests Spotify for an access token
-func GetToken(basicAuth string) (TokenResponse, error) {
-	resp, err := requestToken(basicAuth)
+func GetToken(client string) (TokenResponse, error) {
+	base64Client := base64.StdEncoding.EncodeToString([]byte(client))
+	resp, err := requestToken(base64Client)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -31,7 +33,7 @@ func GetToken(basicAuth string) (TokenResponse, error) {
 	return token, err
 }
 
-func requestToken(basicAuth string) (*http.Response, error) {
+func requestToken(base64Client string) (*http.Response, error) {
 	client := &http.Client{}
 	form := url.Values{
 		"grant_type": {"client_credentials"},
@@ -42,7 +44,7 @@ func requestToken(basicAuth string) (*http.Response, error) {
 		return nil, err
 	}
 
-	req.Header.Add("Authorization", "Basic "+basicAuth)
+	req.Header.Add("Authorization", "Basic "+base64Client)
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 	return client.Do(req)
 }

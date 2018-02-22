@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/base64"
 	"fmt"
 	"log"
 )
@@ -12,9 +11,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	client := config.ClientID + ":" + config.ClientSecret
-	basicAuth := base64.StdEncoding.EncodeToString([]byte(client))
-	token, err := GetToken(basicAuth)
+	token, err := GetToken(config.ClientID + ":" + config.ClientSecret)
 	if err != nil {
 		log.Fatal(err)
 	}
