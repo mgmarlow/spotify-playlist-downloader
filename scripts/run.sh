@@ -1,1 +1,1 @@
-go run main.go config.go access-token.go playlist.go
+go run main.go config.go access-token.go get-tracks.go

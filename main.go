@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -26,14 +27,13 @@ func main() {
 		log.Fatal(err)
 	}
 
-	playlist, err := GetPlaylist(playlistURI, token.AccessToken)
+	tracks, err := GetTracks(playlistURI, token.AccessToken)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("List of Tracks for Playlist " + playlist.Name)
 
-	for i := 0; i < len(playlist.Tracks.Items); i++ {
-		fmt.Printf("%s", playlist.Tracks.Items[i].Track.Name)
+	for i := 0; i < len(tracks.Items); i++ {
+		fmt.Printf("%s\n", tracks.Items[i].Track.Name)
 	}
 }
 
@@ -45,5 +45,5 @@ func queryPlaylistURI() (string, error) {
 		return "", err
 	}
 
-	return text, nil
+	return strings.TrimSpace(text), nil
 }
