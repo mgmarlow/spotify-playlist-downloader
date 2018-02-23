@@ -30,7 +30,11 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("%s", playlist.ID)
+	fmt.Printf("List of Tracks for Playlist " + playlist.Name)
+
+	for i := 0; i < len(playlist.Tracks.Items); i++ {
+		fmt.Printf("%s", playlist.Tracks.Items[i].Track.Name)
+	}
 }
 
 func queryPlaylistURI() (string, error) {
