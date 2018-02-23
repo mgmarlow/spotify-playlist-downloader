@@ -5,7 +5,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 )
@@ -23,7 +22,7 @@ func GetToken(client string) (TokenResponse, error) {
 	base64Client := base64.StdEncoding.EncodeToString([]byte(client))
 	resp, err := requestToken(base64Client)
 	if err != nil {
-		log.Fatal(err)
+		return TokenResponse{}, err
 	}
 
 	defer resp.Body.Close()
