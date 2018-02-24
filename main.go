@@ -21,7 +21,7 @@ func main() {
 	playlistURI, err := queryPlaylistURI()
 	checkError("Error reading user input", err)
 
-	trackItems, err := GetAllTracks(playlistURI, token.AccessToken)
+	trackItems, err := GetAllTrackItems(playlistURI, token.AccessToken)
 	checkError("Error fectching tracks from URI", err)
 
 	err = WriteToFile(trackItems)

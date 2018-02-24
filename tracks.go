@@ -92,8 +92,8 @@ type Tracks struct {
 	Total    int         `json:"total"`
 }
 
-// GetAllTracks returns all tracks from the provided playlist URI
-func GetAllTracks(playlistURI string, accessToken string) ([]Item, error) {
+// GetAllTrackItems returns all tracks from the provided playlist URI
+func GetAllTrackItems(playlistURI string, accessToken string) ([]Item, error) {
 	var trackItems []Item
 	queryParams := strings.Split(playlistURI, ":")
 	initialURI := "https://api.spotify.com/v1/users/" + queryParams[2] + "/playlists/" + queryParams[4] + "/tracks"
