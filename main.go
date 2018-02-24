@@ -6,25 +6,27 @@ import (
 	"log"
 	"os"
 	"strings"
+
+	"github.com/mgmarlow/spotify-playlist-downloader/lib"
 )
 
 func main() {
 	fmt.Println("Loading configuration file (./config.json)...")
-	var config, err = LoadConfig("./config.json")
-	checkError("Error reading from configuration file", err)
+	var config, err = lib.LoadConfig("./config.json")
+	checkError("Error reading configuration file", err)
 
 	fmt.Println("Generating Access Token...")
-	token, err := GetToken(config.ClientID + ":" + config.ClientSecret)
+	token, err := lib.GetToken(config.ClientID + ":" + config.ClientSecret)
 	checkError("Error generating token", err)
 	fmt.Println("Access Token successfully created.")
 
 	playlistURI, err := queryPlaylistURI()
 	checkError("Error reading user input", err)
 
-	trackItems, err := GetAllTrackItems(playlistURI, token.AccessToken)
+	trackItems, err := lib.GetAllTrackItems(playlistURI, token.AccessToken)
 	checkError("Error fectching tracks from URI", err)
 
-	err = WriteToFile(trackItems)
+	err = lib.WriteToFile(trackItems)
 	checkError("Unable to write tracks to a csv", err)
 }
 
@@ -41,6 +43,6 @@ func queryPlaylistURI() (string, error) {
 
 func checkError(message string, err error) {
 	if err != nil {
-		log.Fatal(message, err)
+		log.Fatal(message+"\n", err)
 	}
 }
