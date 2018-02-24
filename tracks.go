@@ -67,22 +67,24 @@ type Track struct {
 	URI         string `json:"uri"`
 }
 
+type Item struct {
+	AddedAt string `json:"added_at"`
+	AddedBy struct {
+		ExternalUrls struct {
+			Spotify string `json:"spotify"`
+		} `json:"external_urls"`
+		Href string `json:"href"`
+		ID   string `json:"id"`
+		Type string `json:"type"`
+		URI  string `json:"uri"`
+	} `json:"added_by"`
+	IsLocal bool  `json:"is_local"`
+	Track   Track `json:"track"`
+}
+
 type Tracks struct {
-	Href  string `json:"href"`
-	Items []struct {
-		AddedAt string `json:"added_at"`
-		AddedBy struct {
-			ExternalUrls struct {
-				Spotify string `json:"spotify"`
-			} `json:"external_urls"`
-			Href string `json:"href"`
-			ID   string `json:"id"`
-			Type string `json:"type"`
-			URI  string `json:"uri"`
-		} `json:"added_by"`
-		IsLocal bool  `json:"is_local"`
-		Track   Track `json:"track"`
-	} `json:"items"`
+	Href     string      `json:"href"`
+	Items    []Item      `json:"items"`
 	Limit    int         `json:"limit"`
 	Next     string      `json:"next"`
 	Offset   int         `json:"offset"`
@@ -90,18 +92,44 @@ type Tracks struct {
 	Total    int         `json:"total"`
 }
 
-// GetTracks returns all tracks from the provided playlist URI
-func GetTracks(playlistURI string, accessToken string) (Tracks, error) {
+// GetAllTracks returns all tracks from the provided playlist URI
+func GetAllTracks(playlistURI string, accessToken string) ([]Item, error) {
+	var trackItems []Item
+
 	resp, err := requestPlaylistTracks(playlistURI, accessToken)
+	if err != nil {
+		return nil, err
+	}
+
+	initialTracks, err := getTracks(resp)
+	if err != nil {
+		return nil, err
+	}
+	trackItems = append(trackItems, initialTracks.Items...)
+
+	next := initialTracks.Next
+	for next != "" {
+		resp, err := requestPlaylistTracksFromFullPath(next, accessToken)
+		newTracks, err := getTracks(resp)
+		if err != nil {
+			return nil, err
+		}
+		trackItems = append(trackItems, newTracks.Items...)
+		next = newTracks.Next
+	}
+
+	return trackItems, err
+}
+
+func getTracks(resp *http.Response) (Tracks, error) {
+	defer resp.Body.Close()
+	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return Tracks{}, err
 	}
-
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
 	var tracks Tracks
 	err = json.Unmarshal(body, &tracks)
-	return tracks, err
+	return tracks, nil
 }
 
 func requestPlaylistTracks(playlistURI string, accessToken string) (*http.Response, error) {
@@ -110,6 +138,17 @@ func requestPlaylistTracks(playlistURI string, accessToken string) (*http.Respon
 
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", uri, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Authorization", "Bearer "+accessToken)
+	return client.Do(req)
+}
+
+func requestPlaylistTracksFromFullPath(path string, accessToken string) (*http.Response, error) {
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", path, nil)
 	if err != nil {
 		return nil, err
 	}

@@ -1,1 +1,1 @@
-go run main.go config.go access-token.go get-tracks.go
+go run main.go config.go access-token.go tracks.go csv-parser.go

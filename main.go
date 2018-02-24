@@ -11,30 +11,21 @@ import (
 func main() {
 	fmt.Println("Loading configuration file (./config.json)...")
 	var config, err = LoadConfig("./config.json")
-	if err != nil {
-		log.Fatal(err)
-	}
+	checkError("Error reading from configuration file", err)
 
 	fmt.Println("Generating Access Token...")
 	token, err := GetToken(config.ClientID + ":" + config.ClientSecret)
-	if err != nil {
-		log.Fatal(err)
-	}
+	checkError("Error generating token", err)
 	fmt.Println("Access Token successfully created.")
 
 	playlistURI, err := queryPlaylistURI()
-	if err != nil {
-		log.Fatal(err)
-	}
+	checkError("Error reading user input", err)
 
-	tracks, err := GetTracks(playlistURI, token.AccessToken)
-	if err != nil {
-		log.Fatal(err)
-	}
+	trackItems, err := GetAllTracks(playlistURI, token.AccessToken)
+	checkError("Error fectching tracks from URI", err)
 
-	for i := 0; i < len(tracks.Items); i++ {
-		fmt.Printf("%s\n", tracks.Items[i].Track.Name)
-	}
+	err = WriteToFile(trackItems)
+	checkError("Unable to write tracks to a csv", err)
 }
 
 func queryPlaylistURI() (string, error) {
@@ -46,4 +37,10 @@ func queryPlaylistURI() (string, error) {
 	}
 
 	return strings.TrimSpace(text), nil
+}
+
+func checkError(message string, err error) {
+	if err != nil {
+		log.Fatal(message, err)
+	}
 }
