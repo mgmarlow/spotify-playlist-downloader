@@ -7,7 +7,7 @@ import (
 )
 
 // WriteToFile writes the provided tracks to a csv, playlist.csv
-func WriteToFile(trackItems []Item) error {
+func WriteToFile(trackItems []*Item) error {
 	file, err := os.Create("playlist.csv")
 	if err != nil {
 		return err
